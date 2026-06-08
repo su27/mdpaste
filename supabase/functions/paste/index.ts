@@ -1,5 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.107.0';
+import { getAuthenticatedUser, type AuthenticatedUser } from '../_shared/auth.ts';
 import { corsHeaders, errorResponse, jsonResponse } from '../_shared/cors.ts';
 import {
   ANONYMOUS_DAILY_PASTE_LIMIT,
@@ -23,19 +24,7 @@ const service = createClient(supabaseUrl, serviceRoleKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-type User = { id: string } | null;
-
-async function getUser(req: Request): Promise<User> {
-  const authorization = req.headers.get('authorization') || '';
-  if (!authorization.toLowerCase().startsWith('bearer ')) return null;
-  const client = createClient(supabaseUrl, anonKey, {
-    global: { headers: { authorization } },
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-  const { data, error } = await client.auth.getUser();
-  if (error || !data.user) return null;
-  return { id: data.user.id };
-}
+type User = AuthenticatedUser;
 
 function slugFromUrl(req: Request) {
   const { pathname } = new URL(req.url);
@@ -229,7 +218,7 @@ async function deletePaste(slug: string, user: User) {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   try {
-    const user = await getUser(req);
+    const user = await getAuthenticatedUser(req, supabaseUrl, anonKey);
     const slug = slugFromUrl(req);
     if (req.method === 'GET' && !slug) return await listPastes(req, user);
     if (req.method === 'POST' && !slug) return await createPaste(req, user);

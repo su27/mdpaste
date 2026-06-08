@@ -1,5 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.107.0';
+import { getAuthenticatedUser, type AuthenticatedUser } from '../_shared/auth.ts';
 import { corsHeaders, errorResponse, jsonResponse } from '../_shared/cors.ts';
 import {
   ANONYMOUS_DAILY_UPLOAD_LIMIT,
@@ -17,19 +18,7 @@ const service = createClient(supabaseUrl, serviceRoleKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-type User = { id: string } | null;
-
-async function getUser(req: Request): Promise<User> {
-  const authorization = req.headers.get('authorization') || '';
-  if (!authorization.toLowerCase().startsWith('bearer ')) return null;
-  const client = createClient(supabaseUrl, anonKey, {
-    global: { headers: { authorization } },
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-  const { data, error } = await client.auth.getUser();
-  if (error || !data.user) return null;
-  return { id: data.user.id };
-}
+type User = AuthenticatedUser;
 
 async function consumeUploadQuota(req: Request, user: User) {
   const identity = await identityForRequest(req, user?.id);
@@ -58,7 +47,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (req.method !== 'POST') return errorResponse('method not allowed', 405);
   try {
-    const user = await getUser(req);
+    const user = await getAuthenticatedUser(req, supabaseUrl, anonKey);
     const formData = await req.formData();
     const file = formData.get('file');
     if (!(file instanceof File)) return errorResponse('file required');
