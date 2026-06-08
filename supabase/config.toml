@@ -8,8 +8,11 @@ max_rows = 1000
 
 [auth]
 enabled = true
-site_url = "http://localhost:5173"
-additional_redirect_urls = ["http://localhost:5173"]
+site_url = "https://su27.github.io/mdpaste/"
+additional_redirect_urls = [
+  "http://localhost:5173",
+  "https://su27.github.io/mdpaste/",
+]
 
 [auth.mfa.totp]
 enroll_enabled = true
@@ -35,4 +38,3 @@ verify_jwt = false
 
 [functions.app]
 verify_jwt = false
-static_files = [ "./functions/app/dist/**/*" ]

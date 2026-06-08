@@ -89,21 +89,23 @@ npm run dev
 
 Open `http://localhost:5173`.
 
-## Deploy to Supabase
+## Deploy
 
-After `supabase login`, `supabase link --project-ref <project-ref>`, `.env.local`, and `IP_HASH_SECRET` are configured:
+Deploy the Supabase backend after `supabase login`, `supabase link --project-ref <project-ref>`, and `IP_HASH_SECRET` are configured:
 
 ```bash
 npm run deploy:supabase
 ```
 
-This command applies migrations, deploys the API functions, builds the Vite app with a Supabase function base path, and deploys the SPA function. The hosted app is available at:
+Supabase endpoints intentionally serve HTML as plain text, so the frontend should be hosted on a static web host. This repository includes a GitHub Pages workflow; configure `VITE_SUPABASE_ANON_KEY` as a repository variable and push to `main`.
+
+The GitHub Pages URL for this repository is:
 
 ```text
-https://<project-ref>.supabase.co/functions/v1/app
+https://su27.github.io/mdpaste/
 ```
 
-Add that URL to Supabase Auth redirect URLs before using Google/GitHub login in production.
+Add the frontend URL to Supabase Auth redirect URLs before using Google/GitHub login in production.
 
 ## API
 
@@ -124,8 +126,8 @@ More details are in `docs/security.md`.
 ```bash
 npm run dev      # Vite dev server
 npm run build    # TypeScript build + Vite production build
-npm run build:supabase    # Build SPA assets for the Supabase app function
-npm run deploy:supabase   # Deploy DB, functions, and the SPA app function
+npm run build:pages       # Build SPA assets for GitHub Pages hash routing
+npm run deploy:supabase   # Deploy Supabase DB and Edge Functions
 npm run preview  # Preview the production build
 npm run lint     # TypeScript check
 ```

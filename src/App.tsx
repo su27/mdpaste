@@ -16,8 +16,10 @@ type Route =
 
 const rawBasePath = import.meta.env.BASE_URL || '/';
 const appBasePath = rawBasePath === '/' ? '' : rawBasePath.replace(/\/$/, '');
+const routerMode = import.meta.env.VITE_ROUTER_MODE === 'hash' ? 'hash' : 'path';
 
 function routePathFromLocation() {
+  if (routerMode === 'hash') return window.location.hash.replace(/^#/, '') || '/';
   const path = window.location.pathname;
   if (appBasePath && path.startsWith(appBasePath)) return path.slice(appBasePath.length) || '/';
   return path;
@@ -25,12 +27,28 @@ function routePathFromLocation() {
 
 function appHref(path: string) {
   const normalized = path.startsWith('/') ? path : `/${path}`;
+  if (routerMode === 'hash') return `#${normalized}`;
   return appBasePath ? `${appBasePath}${normalized}` : normalized;
 }
 
 function routePathFromHref(path: string) {
+  if (routerMode === 'hash') return path.split('#')[1] || path || '/';
   if (appBasePath && path.startsWith(appBasePath)) return path.slice(appBasePath.length) || '/';
   return path;
+}
+
+function authRedirectUrl() {
+  if (routerMode === 'hash') return `${window.location.origin}${window.location.pathname}`;
+  return `${window.location.origin}${appHref('/')}`;
+}
+
+function currentReturnPath() {
+  return routerMode === 'hash' ? routePathFromLocation() : `${window.location.pathname}${window.location.search}`;
+}
+
+function absoluteAppUrl(path: string) {
+  if (routerMode === 'hash') return `${window.location.origin}${window.location.pathname}#${path.startsWith('/') ? path : `/${path}`}`;
+  return `${window.location.origin}${appHref(path)}`;
 }
 
 function routeFromLocation(): Route {
@@ -115,10 +133,10 @@ function Header({ route, session, navigate }: { route: Route; session: Session |
   async function signIn(provider: 'google' | 'github') {
     if (!supabase) return;
     setAuthMessage('');
-    sessionStorage.setItem('md-paste:returnTo', `${window.location.pathname}${window.location.search}`);
+    sessionStorage.setItem('md-paste:returnTo', currentReturnPath());
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}${appHref('/')}` },
+      options: { redirectTo: authRedirectUrl() },
     });
     if (error) setAuthMessage(error.message);
   }
@@ -219,7 +237,7 @@ function PastePage({ slug, session, navigate }: { slug: string; session: Session
   }
 
   async function copyLink() {
-    const url = `${window.location.origin}${appHref(`/p/${slug}`)}`;
+    const url = absoluteAppUrl(`/p/${slug}`);
     await navigator.clipboard.writeText(url);
     setCopyMessage('Copied link.');
     window.setTimeout(() => setCopyMessage(''), 1600);

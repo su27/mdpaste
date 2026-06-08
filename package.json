@@ -9,8 +9,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "tsc -b --pretty false",
-    "build:supabase": "vite build --base=/functions/v1/app/ && rm -rf supabase/functions/app/dist && cp -R dist supabase/functions/app/dist",
-    "deploy:supabase": "npm run build:supabase && supabase db push && supabase functions deploy paste && supabase functions deploy upload-image && supabase functions deploy app"
+    "deploy:supabase": "supabase db push && supabase functions deploy paste && supabase functions deploy upload-image && supabase functions deploy app",
+    "build:pages": "VITE_ROUTER_MODE=hash vite build --base=/mdpaste/"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.107.0",

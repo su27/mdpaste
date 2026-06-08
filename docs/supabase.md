@@ -1,6 +1,6 @@
 # Supabase Deployment Guide
 
-This project uses Supabase for the backend runtime: Postgres, Auth, Storage, and Edge Functions. The web client is a static Vite build.
+This project uses Supabase for the backend runtime: Postgres, Auth, Storage, and Edge Functions. The web client is a static Vite build hosted outside Supabase.
 
 ## Required Supabase Components
 
@@ -98,7 +98,7 @@ In the Supabase dashboard:
 ```text
 http://localhost:5173
 https://your-domain.example
-https://<project-ref>.supabase.co/functions/v1/app
+https://su27.github.io/mdpaste/
 ```
 
 The React client calls `supabase.auth.signInWithOAuth()` and redirects back to the current page.
@@ -119,29 +119,31 @@ verify_jwt = false
 
 This allows anonymous paste creation and image upload. When a user is signed in, the client still sends `Authorization: Bearer <access-token>`; each function validates it with Supabase Auth before allowing owner/private operations.
 
-## Frontend Hosting on Supabase
+## Frontend Hosting
 
-The repository includes an `app` Edge Function that serves the built Vite SPA from `supabase/functions/app/dist`.
+Supabase Edge Functions and Storage are not general static website hosting surfaces for HTML apps; HTML responses are delivered with protective plain-text/sandbox behavior. Host the Vite frontend on a static web host such as GitHub Pages, Netlify, Vercel, or Cloudflare Pages.
 
-Build the static client for the function path:
+This repository includes a GitHub Pages workflow at `.github/workflows/pages.yml`.
+
+Build the static client for GitHub Pages:
 
 ```bash
-npm run build:supabase
+npm run build:pages
 ```
 
-Deploy the function:
+For the `su27/mdpaste` repository, set this GitHub repository variable:
 
-```bash
-supabase functions deploy app
+```text
+VITE_SUPABASE_ANON_KEY=<your Supabase anon key>
 ```
 
 The app URL is:
 
 ```text
-https://<project-ref>.supabase.co/functions/v1/app
+https://su27.github.io/mdpaste/
 ```
 
-Configure Supabase Auth redirect URLs to include that URL. The Vite app is base-path aware, so routes like `/p/:slug` resolve under `/functions/v1/app/p/:slug` when deployed this way.
+Configure Supabase Auth redirect URLs to include that URL. The Pages build uses hash routing, so paste URLs look like `https://su27.github.io/mdpaste/#/p/:slug` and work with static hosting.
 
 ## References
 
