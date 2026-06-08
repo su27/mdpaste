@@ -1,0 +1,21 @@
+project_id = "md-paste"
+
+[api]
+enabled = true
+schemas = ["public", "storage"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173"]
+
+[storage]
+enabled = true
+
+[functions.paste]
+verify_jwt = false
+
+[functions.upload-image]
+verify_jwt = false

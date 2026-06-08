@@ -1,0 +1,33 @@
+{
+  "version": "4",
+  "redirects": {
+    "https://esm.sh/@types/sanitize-html@~2.16.1/index.d.ts": "https://esm.sh/@types/sanitize-html@2.16.1/index.d.ts"
+  },
+  "remote": {
+    "https://esm.sh/@supabase/supabase-js@2.107.0": "8caa09b0223684d83cfa273de2946af25430d7ca8e5320b721226a0c7a8c6e98",
+    "https://esm.sh/sanitize-html@2.17.4": "6bcf3be95595908cd626d78ed113ed5afa37ac6f19d98031cf16e5982fdce8ab"
+  },
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:@supabase/supabase-js@^2.107.0",
+        "npm:@types/react-dom@19",
+        "npm:@types/react@19",
+        "npm:@vitejs/plugin-react@^4.5.0",
+        "npm:dompurify@^3.2.0",
+        "npm:highlight.js@^11.11.0",
+        "npm:katex@~0.16.11",
+        "npm:react-dom@19",
+        "npm:react-markdown@^10.1.0",
+        "npm:react@19",
+        "npm:rehype-highlight@^7.0.1",
+        "npm:rehype-katex@^7.0.1",
+        "npm:rehype-sanitize@6",
+        "npm:remark-gfm@^4.0.1",
+        "npm:remark-math@6",
+        "npm:typescript@^5.8.0",
+        "npm:vite@^6.3.0"
+      ]
+    }
+  }
+}
