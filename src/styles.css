@@ -172,11 +172,11 @@ nav a.active {
 }
 
 .hero-panel {
-  padding: 28px;
+  padding: 22px 24px;
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
+  border-radius: 12px;
+  box-shadow: 0 10px 32px rgba(27, 31, 36, 0.06);
 }
 
 .eyebrow {
@@ -202,20 +202,21 @@ h3 {
 }
 
 .hero-panel h1 {
-  max-width: 680px;
-  font-size: clamp(34px, 5vw, 58px);
-  letter-spacing: -0.04em;
+  max-width: 620px;
+  font-size: clamp(26px, 3.2vw, 38px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 .quota-card {
   display: grid;
   gap: 4px;
   min-width: 230px;
-  padding: 16px;
+  padding: 14px 15px;
   color: var(--muted);
   background: #f6f8fa;
   border: 1px solid var(--border-muted);
-  border-radius: 12px;
+  border-radius: 10px;
   font-size: 13px;
 }
 
@@ -638,6 +639,6 @@ textarea {
   }
 
   .hero-panel h1 {
-    font-size: 36px;
+    font-size: 28px;
   }
 }
