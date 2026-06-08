@@ -14,6 +14,7 @@ This project uses Supabase for the backend runtime: Postgres, Auth, Storage, and
 - Edge Functions:
   - `paste`
   - `upload-image`
+  - `app`
 - Auth providers:
   - GitHub
   - Google
@@ -74,6 +75,7 @@ Deploy functions:
 ```bash
 supabase functions deploy paste
 supabase functions deploy upload-image
+supabase functions deploy app
 ```
 
 The deployed functions receive these Supabase-provided variables automatically:
@@ -96,9 +98,12 @@ In the Supabase dashboard:
 ```text
 http://localhost:5173
 https://your-domain.example
+https://<project-ref>.supabase.co/functions/v1/app
 ```
 
 The React client calls `supabase.auth.signInWithOAuth()` and redirects back to the current page.
+
+`supabase/config.toml` keeps local Auth defaults. For production, prefer setting OAuth providers and redirect URLs in the dashboard, or carefully edit the `[auth]` section before running `supabase config push`.
 
 ## Function JWT Verification
 
@@ -114,15 +119,29 @@ verify_jwt = false
 
 This allows anonymous paste creation and image upload. When a user is signed in, the client still sends `Authorization: Bearer <access-token>`; each function validates it with Supabase Auth before allowing owner/private operations.
 
-## Frontend Hosting
+## Frontend Hosting on Supabase
 
-Build the static client:
+The repository includes an `app` Edge Function that serves the built Vite SPA from `supabase/functions/app/dist`.
+
+Build the static client for the function path:
 
 ```bash
-npm run build
+npm run build:supabase
 ```
 
-Deploy the generated `dist/` directory to your static host. Configure the host to fall back to `index.html` for routes like `/p/:slug` and `/mine`.
+Deploy the function:
+
+```bash
+supabase functions deploy app
+```
+
+The app URL is:
+
+```text
+https://<project-ref>.supabase.co/functions/v1/app
+```
+
+Configure Supabase Auth redirect URLs to include that URL. The Vite app is base-path aware, so routes like `/p/:slug` resolve under `/functions/v1/app/p/:slug` when deployed this way.
 
 ## References
 

@@ -2,7 +2,7 @@ project_id = "md-paste"
 
 [api]
 enabled = true
-schemas = ["public", "storage"]
+schemas = ["public", "graphql_public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
@@ -10,6 +10,19 @@ max_rows = 1000
 enabled = true
 site_url = "http://localhost:5173"
 additional_redirect_urls = ["http://localhost:5173"]
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
+secure_password_change = false
+max_frequency = "1m0s"
+otp_length = 8
+otp_expiry = 3600
 
 [storage]
 enabled = true
@@ -19,3 +32,7 @@ verify_jwt = false
 
 [functions.upload-image]
 verify_jwt = false
+
+[functions.app]
+verify_jwt = false
+static_files = [ "./functions/app/dist/**/*" ]

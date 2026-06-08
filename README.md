@@ -89,6 +89,22 @@ npm run dev
 
 Open `http://localhost:5173`.
 
+## Deploy to Supabase
+
+After `supabase login`, `supabase link --project-ref <project-ref>`, `.env.local`, and `IP_HASH_SECRET` are configured:
+
+```bash
+npm run deploy:supabase
+```
+
+This command applies migrations, deploys the API functions, builds the Vite app with a Supabase function base path, and deploys the SPA function. The hosted app is available at:
+
+```text
+https://<project-ref>.supabase.co/functions/v1/app
+```
+
+Add that URL to Supabase Auth redirect URLs before using Google/GitHub login in production.
+
 ## API
 
 The browser uses Supabase Edge Functions, but they are plain HTTP endpoints and are useful from scripts too. See `docs/api.md` for CRUD examples.
@@ -108,6 +124,8 @@ More details are in `docs/security.md`.
 ```bash
 npm run dev      # Vite dev server
 npm run build    # TypeScript build + Vite production build
+npm run build:supabase    # Build SPA assets for the Supabase app function
+npm run deploy:supabase   # Deploy DB, functions, and the SPA app function
 npm run preview  # Preview the production build
 npm run lint     # TypeScript check
 ```

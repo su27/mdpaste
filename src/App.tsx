@@ -14,8 +14,27 @@ type Route =
   | { name: 'edit'; slug: string }
   | { name: 'not-found' };
 
+const rawBasePath = import.meta.env.BASE_URL || '/';
+const appBasePath = rawBasePath === '/' ? '' : rawBasePath.replace(/\/$/, '');
+
+function routePathFromLocation() {
+  const path = window.location.pathname;
+  if (appBasePath && path.startsWith(appBasePath)) return path.slice(appBasePath.length) || '/';
+  return path;
+}
+
+function appHref(path: string) {
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  return appBasePath ? `${appBasePath}${normalized}` : normalized;
+}
+
+function routePathFromHref(path: string) {
+  if (appBasePath && path.startsWith(appBasePath)) return path.slice(appBasePath.length) || '/';
+  return path;
+}
+
 function routeFromLocation(): Route {
-  const parts = window.location.pathname.split('/').filter(Boolean);
+  const parts = routePathFromLocation().split('/').filter(Boolean);
   if (parts.length === 0) return { name: 'home' };
   if (parts[0] === 'explore' && parts.length === 1) return { name: 'explore' };
   if (parts[0] === 'mine' && parts.length === 1) return { name: 'mine' };
@@ -33,7 +52,7 @@ function useRoute() {
   }, []);
 
   function navigate(path: string) {
-    window.history.pushState({}, '', path);
+    window.history.pushState({}, '', appHref(path));
     setRoute(routeFromLocation());
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -78,7 +97,7 @@ function NavLink({ href, current, navigate, children }: { href: string; current:
   return (
     <a
       className={current ? 'active' : ''}
-      href={href}
+      href={appHref(href)}
       onClick={(event) => {
         event.preventDefault();
         navigate(href);
@@ -99,7 +118,7 @@ function Header({ route, session, navigate }: { route: Route; session: Session |
     sessionStorage.setItem('md-paste:returnTo', `${window.location.pathname}${window.location.search}`);
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: `${window.location.origin}${appHref('/')}` },
     });
     if (error) setAuthMessage(error.message);
   }
@@ -113,7 +132,7 @@ function Header({ route, session, navigate }: { route: Route; session: Session |
   return (
     <header className="site-header">
       <div className="brand-row">
-        <a className="brand" href="/" onClick={(event) => { event.preventDefault(); navigate('/'); }}>
+        <a className="brand" href={appHref('/')} onClick={(event) => { event.preventDefault(); navigate('/'); }}>
           <span className="brand-mark">md</span>
           <span>Paste</span>
         </a>
@@ -200,7 +219,7 @@ function PastePage({ slug, session, navigate }: { slug: string; session: Session
   }
 
   async function copyLink() {
-    const url = `${window.location.origin}/p/${slug}`;
+    const url = `${window.location.origin}${appHref(`/p/${slug}`)}`;
     await navigator.clipboard.writeText(url);
     setCopyMessage('Copied link.');
     window.setTimeout(() => setCopyMessage(''), 1600);
@@ -326,7 +345,7 @@ function ListPage({ mine, session, navigate }: { mine: boolean; session: Session
         {items.map((paste) => (
           <article className="paste-card" key={paste.slug}>
             <div>
-              <h2><a href={`/p/${paste.slug}`} onClick={(event) => { event.preventDefault(); navigate(`/p/${paste.slug}`); }}>{pasteTitle(paste.title)}</a></h2>
+              <h2><a href={appHref(`/p/${paste.slug}`)} onClick={(event) => { event.preventDefault(); navigate(`/p/${paste.slug}`); }}>{pasteTitle(paste.title)}</a></h2>
               <p>{summaryExcerpt(paste)}</p>
               <div className="meta-row">
                 <Badge>{paste.content_type}</Badge>
@@ -376,7 +395,8 @@ function App() {
     const returnTo = sessionStorage.getItem('md-paste:returnTo');
     if (!returnTo || !returnTo.startsWith('/')) return;
     sessionStorage.removeItem('md-paste:returnTo');
-    if (returnTo !== window.location.pathname) navigate(returnTo);
+    const nextRoute = routePathFromHref(returnTo);
+    if (nextRoute !== routePathFromLocation()) navigate(nextRoute);
   }, [navigate, session]);
 
   const content = useMemo(() => {
