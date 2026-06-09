@@ -12,7 +12,8 @@
   --accent-strong: #0550ae;
   --success: #1a7f37;
   --danger: #cf222e;
-  --shadow: 0 18px 50px rgba(27, 31, 36, 0.08);
+  --shadow: 0 18px 48px rgba(27, 31, 36, 0.07);
+  --shadow-soft: 0 10px 30px rgba(27, 31, 36, 0.045);
   --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
   --sans: "Avenir Next", "Segoe UI", sans-serif;
 }
@@ -26,10 +27,10 @@ body {
   min-width: 320px;
   color: var(--text);
   background:
-    radial-gradient(circle at top left, rgba(9, 105, 218, 0.08), transparent 28rem),
-    linear-gradient(180deg, #ffffff 0, var(--bg) 18rem);
+    radial-gradient(circle at top left, rgba(9, 105, 218, 0.075), transparent 32rem),
+    linear-gradient(180deg, #ffffff 0, var(--bg) 22rem);
   font-family: var(--sans);
-  line-height: 1.5;
+  line-height: 1.62;
 }
 
 button,
@@ -70,9 +71,9 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  min-height: 64px;
-  padding: 12px clamp(16px, 4vw, 40px);
+  gap: 20px;
+  min-height: 70px;
+  padding: 14px clamp(18px, 4vw, 48px);
   background: rgba(255, 255, 255, 0.88);
   border-bottom: 1px solid var(--border);
   backdrop-filter: blur(16px);
@@ -87,7 +88,7 @@ nav,
 .pager {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .brand {
@@ -152,13 +153,13 @@ nav a.active {
 }
 
 .page {
-  width: min(1180px, calc(100vw - 32px));
+  width: min(1160px, calc(100vw - 48px));
   margin: 0 auto;
-  padding: 34px 0 70px;
+  padding: clamp(42px, 6vw, 64px) 0 96px;
 }
 
 .narrow-page {
-  width: min(940px, calc(100vw - 32px));
+  width: min(920px, calc(100vw - 48px));
 }
 
 .hero-panel,
@@ -167,16 +168,16 @@ nav a.active {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 22px;
-  margin-bottom: 22px;
+  gap: 28px;
+  margin-bottom: 30px;
 }
 
 .hero-panel {
-  padding: 22px 24px;
+  padding: clamp(26px, 4vw, 36px);
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 10px 32px rgba(27, 31, 36, 0.06);
+  border-radius: 16px;
+  box-shadow: var(--shadow-soft);
 }
 
 .eyebrow {
@@ -192,7 +193,7 @@ h1,
 h2,
 h3 {
   margin-top: 0;
-  line-height: 1.15;
+  line-height: 1.22;
 }
 
 .hero-panel h1,
@@ -206,17 +207,18 @@ h3 {
   font-size: clamp(26px, 3.2vw, 38px);
   font-weight: 700;
   letter-spacing: -0.025em;
+  text-wrap: balance;
 }
 
 .quota-card {
   display: grid;
-  gap: 4px;
+  gap: 6px;
   min-width: 230px;
-  padding: 14px 15px;
+  padding: 18px;
   color: var(--muted);
   background: #f6f8fa;
   border: 1px solid var(--border-muted);
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 13px;
 }
 
@@ -230,19 +232,19 @@ h3 {
 .empty-state {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: var(--shadow);
 }
 
 .editor-shell {
-  padding: 18px;
+  padding: clamp(20px, 3vw, 28px);
 }
 
 .editor-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 160px 160px;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 16px;
+  margin-bottom: 18px;
 }
 
 .field {
@@ -257,12 +259,12 @@ h3 {
 .field select,
 .search-form input {
   width: 100%;
-  height: 38px;
-  padding: 8px 10px;
+  height: 42px;
+  padding: 9px 12px;
   color: var(--text);
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 9px;
   outline: none;
 }
 
@@ -277,7 +279,7 @@ textarea:focus {
 .editor-card {
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 .editor-tabs,
@@ -290,13 +292,13 @@ textarea:focus {
 }
 
 .editor-tabs {
-  min-height: 44px;
-  padding: 0 8px;
+  min-height: 50px;
+  padding: 0 12px;
 }
 
 .editor-tabs button {
   align-self: stretch;
-  padding: 0 12px;
+  padding: 0 14px;
   color: var(--muted);
   background: transparent;
   border: 0;
@@ -316,14 +318,14 @@ textarea:focus {
 
 .markdown-toolbar {
   flex-wrap: wrap;
-  padding: 6px 8px;
+  padding: 9px 12px;
 }
 
 .tool-group {
   display: inline-flex;
-  gap: 3px;
-  padding-right: 6px;
-  margin-right: 4px;
+  gap: 4px;
+  padding-right: 10px;
+  margin-right: 6px;
   border-right: 1px solid var(--border-muted);
 }
 
@@ -334,12 +336,12 @@ textarea:focus {
 .markdown-tool-btn {
   display: inline-grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   color: var(--muted);
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 7px;
+  border-radius: 8px;
 }
 
 .markdown-tool-btn:not(:disabled):hover {
@@ -361,26 +363,26 @@ textarea:focus {
 textarea {
   display: block;
   width: 100%;
-  min-height: 420px;
-  padding: 16px;
+  min-height: 460px;
+  padding: 22px;
   color: var(--text);
   background: #fff;
   border: 0;
   outline: none;
   resize: vertical;
-  font-size: 14px;
-  line-height: 1.55;
+  font-size: 15px;
+  line-height: 1.7;
 }
 
 .preview-pane {
-  min-height: 420px;
-  padding: 22px;
+  min-height: 460px;
+  padding: 30px;
   background: #fff;
 }
 
 .editor-actions {
   flex-wrap: wrap;
-  margin-top: 14px;
+  margin-top: 18px;
 }
 
 .primary-button,
@@ -389,9 +391,9 @@ textarea {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 34px;
-  padding: 7px 12px;
-  border-radius: 7px;
+  min-height: 38px;
+  padding: 8px 14px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 700;
 }
@@ -435,12 +437,12 @@ textarea {
 }
 
 .paste-shell {
-  padding: clamp(18px, 4vw, 32px);
+  padding: clamp(26px, 5vw, 48px);
 }
 
 .paste-header {
-  padding-bottom: 18px;
-  margin-bottom: 20px;
+  padding-bottom: 24px;
+  margin-bottom: 30px;
   border-bottom: 1px solid var(--border-muted);
 }
 
@@ -456,6 +458,8 @@ textarea {
 
 .meta-row {
   flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
   color: var(--subtle);
   font-size: 13px;
 }
@@ -477,6 +481,8 @@ textarea {
 .paste-body {
   color: var(--text);
   overflow-wrap: anywhere;
+  font-size: 16px;
+  line-height: 1.78;
 }
 
 .paste-body > :first-child {
@@ -485,8 +491,18 @@ textarea {
 
 .paste-body h1,
 .paste-body h2 {
+  margin-top: 1.6em;
+  margin-bottom: 0.7em;
   padding-bottom: 0.3em;
   border-bottom: 1px solid var(--border-muted);
+}
+
+.paste-body h3,
+.paste-body h4,
+.paste-body h5,
+.paste-body h6 {
+  margin-top: 1.45em;
+  margin-bottom: 0.55em;
 }
 
 .paste-body p,
@@ -495,15 +511,26 @@ textarea {
 .paste-body blockquote,
 .paste-body table,
 .paste-body pre {
-  margin: 0 0 16px;
+  margin: 0 0 1.15em;
+}
+
+.paste-body ul,
+.paste-body ol {
+  padding-left: 1.6em;
+}
+
+.paste-body li + li {
+  margin-top: 0.35em;
 }
 
 .paste-body pre {
   overflow-x: auto;
-  padding: 16px;
+  padding: 18px 20px;
   background: #f6f8fa;
   border: 1px solid var(--border-muted);
-  border-radius: 8px;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.65;
 }
 
 .paste-body code:not(pre code) {
@@ -514,7 +541,7 @@ textarea {
 }
 
 .paste-body blockquote {
-  padding-left: 14px;
+  padding: 2px 0 2px 18px;
   color: var(--muted);
   border-left: 4px solid var(--border);
 }
@@ -528,7 +555,7 @@ textarea {
 
 .paste-body th,
 .paste-body td {
-  padding: 7px 10px;
+  padding: 9px 12px;
   border: 1px solid var(--border);
 }
 
@@ -544,37 +571,40 @@ textarea {
 
 .search-form {
   display: flex;
-  gap: 8px;
-  width: min(420px, 100%);
+  gap: 10px;
+  width: min(460px, 100%);
 }
 
 .paste-list {
   display: grid;
-  gap: 12px;
+  gap: 16px;
 }
 
 .paste-card {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
-  padding: 18px;
+  gap: 24px;
+  padding: 22px;
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
+  box-shadow: var(--shadow-soft);
 }
 
 .paste-card h2 {
-  margin-bottom: 6px;
-  font-size: 20px;
+  margin-bottom: 8px;
+  font-size: 21px;
 }
 
 .paste-card p {
-  margin: 0 0 12px;
+  max-width: 72ch;
+  margin: 0 0 16px;
   color: var(--muted);
+  line-height: 1.65;
 }
 
 .empty-state {
-  padding: 34px;
+  padding: clamp(42px, 6vw, 64px);
   text-align: center;
 }
 
@@ -590,7 +620,7 @@ textarea {
 
 .pager {
   justify-content: center;
-  margin-top: 22px;
+  margin-top: 30px;
   color: var(--muted);
 }
 
@@ -628,6 +658,27 @@ textarea {
 
   .editor-grid {
     grid-template-columns: 1fr;
+  }
+
+  .page,
+  .narrow-page {
+    width: min(calc(100% - 32px), 920px);
+  }
+
+  .page {
+    padding: 30px 0 64px;
+  }
+
+  .editor-shell,
+  .paste-shell,
+  .empty-state {
+    border-radius: 14px;
+  }
+
+  textarea,
+  .preview-pane {
+    min-height: 360px;
+    padding: 18px;
   }
 
   .editor-help {
