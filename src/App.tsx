@@ -107,6 +107,14 @@ function pasteTitle(title: string) {
   return title.trim() || 'Untitled paste';
 }
 
+function canEditPaste(paste: Pick<Paste | PasteSummary, 'is_owner' | 'can_edit'>) {
+  return paste.can_edit || paste.is_owner;
+}
+
+function canDeletePaste(paste: Pick<Paste | PasteSummary, 'is_owner' | 'can_delete'>) {
+  return paste.can_delete || paste.is_owner;
+}
+
 function Badge({ children }: { children: string }) {
   return <span className="badge">{children}</span>;
 }
@@ -261,8 +269,8 @@ function PastePage({ slug, session, navigate }: { slug: string; session: Session
           </div>
           <div className="paste-actions">
             <button className="ghost-button" type="button" onClick={() => void copyLink()}>Copy link</button>
-            {paste.is_owner ? <button className="ghost-button" type="button" onClick={() => navigate(`/p/${paste.slug}/edit`)}>Edit</button> : null}
-            {paste.is_owner ? <button className="danger-button" type="button" onClick={() => void handleDelete()}>Delete</button> : null}
+            {canEditPaste(paste) ? <button className="ghost-button" type="button" onClick={() => navigate(`/p/${paste.slug}/edit`)}>Edit</button> : null}
+            {canDeletePaste(paste) ? <button className="danger-button" type="button" onClick={() => void handleDelete()}>Delete</button> : null}
           </div>
         </header>
         {copyMessage ? <p className="status-message inline-status">{copyMessage}</p> : null}
@@ -298,7 +306,7 @@ function EditPage({ slug, session, navigate }: { slug: string; session: Session 
   if (!session) return <main className="page narrow-page"><section className="empty-state"><h1>Sign in required</h1><p>You need to sign in before editing a paste.</p></section></main>;
   if (loading) return <main className="page narrow-page"><p className="loading-line">Loading editor...</p></main>;
   if (error || !paste) return <main className="page narrow-page"><section className="empty-state"><h1>Could not load paste</h1><p>{error}</p></section></main>;
-  if (!paste.is_owner) return <main className="page narrow-page"><section className="empty-state"><h1>Not your paste</h1><p>Only the owner can edit this paste.</p></section></main>;
+  if (!canEditPaste(paste)) return <main className="page narrow-page"><section className="empty-state"><h1>Not allowed</h1><p>Only the owner or an administrator can edit this paste.</p></section></main>;
 
   return (
     <main className="page">
@@ -317,19 +325,25 @@ function ListPage({ mine, session, navigate }: { mine: boolean; session: Session
   const [submittedQuery, setSubmittedQuery] = useState('');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [adminView, setAdminView] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (mine && !session) return;
+    if (mine && !session) {
+      setAdminView(false);
+      return;
+    }
     let alive = true;
     setLoading(true);
     setError('');
+    setAdminView(false);
     listPastes({ mine, q: submittedQuery, page })
       .then((data) => {
         if (!alive) return;
         setItems(data.pastes);
         setTotal(data.total);
+        setAdminView(Boolean(data.admin_view));
       })
       .catch((err) => { if (alive) setError(err instanceof Error ? err.message : 'Could not load pastes.'); })
       .finally(() => { if (alive) setLoading(false); });
@@ -337,6 +351,15 @@ function ListPage({ mine, session, navigate }: { mine: boolean; session: Session
   }, [mine, page, session, submittedQuery]);
 
   const totalPages = Math.max(1, Math.ceil(total / 20));
+  const heading = adminView ? 'All pastes' : mine ? 'Your pastes' : 'Explore pastes';
+  const emptyText = adminView ? 'No pastes have been created yet.' : mine ? 'Create your first paste from the New page.' : 'No public pastes matched your search.';
+
+  async function handleDelete(slug: string) {
+    if (!window.confirm('Delete this paste? This cannot be undone.')) return;
+    await deletePaste(slug);
+    setItems((current) => current.filter((item) => item.slug !== slug));
+    setTotal((value) => Math.max(0, value - 1));
+  }
 
   if (mine && !session) {
     return <main className="page narrow-page"><section className="empty-state"><h1>Sign in to see your pastes</h1><p>Use Google or GitHub to save private pastes and manage your history.</p></section></main>;
@@ -346,8 +369,8 @@ function ListPage({ mine, session, navigate }: { mine: boolean; session: Session
     <main className="page narrow-page">
       <section className="page-heading">
         <div>
-          <p className="eyebrow">{mine ? 'Your library' : 'Public stream'}</p>
-          <h1>{mine ? 'Your pastes' : 'Explore pastes'}</h1>
+          <p className="eyebrow">{adminView ? 'Admin library' : mine ? 'Your library' : 'Public stream'}</p>
+          <h1>{heading}</h1>
         </div>
         <form className="search-form" onSubmit={(event) => { event.preventDefault(); setPage(1); setSubmittedQuery(query.trim()); }}>
           <input value={query} placeholder="Search title or content" onChange={(event) => setQuery(event.target.value)} />
@@ -357,7 +380,7 @@ function ListPage({ mine, session, navigate }: { mine: boolean; session: Session
 
       {loading ? <p className="loading-line">Loading pastes...</p> : null}
       {error ? <p className="status-message error">{error}</p> : null}
-      {!loading && !items.length ? <section className="empty-state"><h2>No pastes yet</h2><p>{mine ? 'Create your first paste from the New page.' : 'No public pastes matched your search.'}</p></section> : null}
+      {!loading && !items.length ? <section className="empty-state"><h2>No pastes yet</h2><p>{emptyText}</p></section> : null}
 
       <div className="paste-list">
         {items.map((paste) => (
@@ -371,7 +394,12 @@ function ListPage({ mine, session, navigate }: { mine: boolean; session: Session
                 <span>{formatDate(paste.created_at)}</span>
               </div>
             </div>
-            {paste.is_owner ? <button className="ghost-button" type="button" onClick={() => navigate(`/p/${paste.slug}/edit`)}>Edit</button> : null}
+            {canEditPaste(paste) || canDeletePaste(paste) ? (
+              <div className="paste-actions">
+                {canEditPaste(paste) ? <button className="ghost-button" type="button" onClick={() => navigate(`/p/${paste.slug}/edit`)}>Edit</button> : null}
+                {canDeletePaste(paste) ? <button className="danger-button" type="button" onClick={() => void handleDelete(paste.slug)}>Delete</button> : null}
+              </div>
+            ) : null}
           </article>
         ))}
       </div>

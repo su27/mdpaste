@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.107.0';
-import { getAuthenticatedUser, type AuthenticatedUser } from '../_shared/auth.ts';
+import { getAuthenticatedUser, isAdminUser, type AuthenticatedUser } from '../_shared/auth.ts';
 import { corsHeaders, errorResponse, jsonResponse } from '../_shared/cors.ts';
 import {
   ANONYMOUS_DAILY_PASTE_LIMIT,
@@ -25,6 +25,17 @@ const service = createClient(supabaseUrl, serviceRoleKey, {
 });
 
 type User = AuthenticatedUser;
+
+function permissionsForPaste(paste: { owner_id: string | null }, user: User) {
+  const isOwner = Boolean(user && paste.owner_id === user.id);
+  const isAdmin = isAdminUser(user);
+  return {
+    is_owner: isOwner,
+    is_admin: isAdmin,
+    can_edit: isOwner || isAdmin,
+    can_delete: isOwner || isAdmin,
+  };
+}
 
 function slugFromUrl(req: Request) {
   const { pathname } = new URL(req.url);
@@ -134,9 +145,10 @@ async function getPaste(slug: string, user: User) {
     .maybeSingle();
   if (error) throw error;
   if (!data) return errorResponse('not found', 404);
-  if (data.visibility === 'private' && data.owner_id !== user?.id) return errorResponse('not found', 404);
+  const permissions = permissionsForPaste(data, user);
+  if (data.visibility === 'private' && !permissions.can_edit) return errorResponse('not found', 404);
   const { owner_id: _ownerId, ...safe } = data;
-  return jsonResponse({ ...safe, is_owner: data.owner_id === user?.id, url: `/p/${slug}` });
+  return jsonResponse({ ...safe, ...permissions, url: `/p/${slug}` });
 }
 
 async function listPastes(req: Request, user: User) {
@@ -145,6 +157,7 @@ async function listPastes(req: Request, user: User) {
   const pageSize = parsePositiveInt(url.searchParams.get('page_size'), 20, 50);
   const mine = url.searchParams.get('mine') === '1';
   const q = (url.searchParams.get('q') || '').trim().slice(0, 120).replace(/[,%()]/g, ' ');
+  const isAdmin = isAdminUser(user);
   if (mine && !user) return errorResponse('auth required', 401);
 
   let query = service
@@ -153,8 +166,11 @@ async function listPastes(req: Request, user: User) {
     .order('created_at', { ascending: false })
     .range((page - 1) * pageSize, page * pageSize - 1);
 
-  if (mine) query = query.eq('owner_id', user!.id);
-  else query = query.eq('visibility', 'public');
+  if (mine) {
+    if (!isAdmin) query = query.eq('owner_id', user!.id);
+  } else {
+    query = query.eq('visibility', 'public');
+  }
   if (q) query = query.or(`title.ilike.%${q}%,content.ilike.%${q}%`);
 
   const { data, error, count } = await query;
@@ -163,6 +179,8 @@ async function listPastes(req: Request, user: User) {
     page,
     page_size: pageSize,
     total: count || 0,
+    is_admin: isAdmin,
+    admin_view: mine && isAdmin,
     pastes: (data || []).map((paste: any) => ({
       slug: paste.slug,
       title: paste.title,
@@ -171,7 +189,7 @@ async function listPastes(req: Request, user: User) {
       visibility: paste.visibility,
       created_at: paste.created_at,
       updated_at: paste.updated_at,
-      is_owner: paste.owner_id === user?.id,
+      ...permissionsForPaste(paste, user),
       url: `/p/${paste.slug}`,
     })),
   });
@@ -182,7 +200,7 @@ async function updatePaste(slug: string, req: Request, user: User) {
   const { data: existing, error } = await service.from('pastes').select('*').eq('slug', slug).maybeSingle();
   if (error) throw error;
   if (!existing) return errorResponse('not found', 404);
-  if (existing.owner_id !== user.id) return errorResponse('forbidden', 403);
+  if (!permissionsForPaste(existing, user).can_edit) return errorResponse('forbidden', 403);
 
   const data = await readJson(req);
   const payload = preparePayload(data, existing);
@@ -209,7 +227,7 @@ async function deletePaste(slug: string, user: User) {
   const { data: existing, error } = await service.from('pastes').select('owner_id').eq('slug', slug).maybeSingle();
   if (error) throw error;
   if (!existing) return errorResponse('not found', 404);
-  if (existing.owner_id !== user.id) return errorResponse('forbidden', 403);
+  if (!permissionsForPaste(existing, user).can_delete) return errorResponse('forbidden', 403);
   const { error: deleteError } = await service.from('pastes').delete().eq('slug', slug);
   if (deleteError) throw deleteError;
   return jsonResponse({ ok: true });

@@ -65,7 +65,7 @@ curl -sS "$SUPABASE_URL/functions/v1/paste/AbCdEf2345" \
   -H "apikey: $SUPABASE_ANON_KEY"
 ```
 
-Private pastes require the owner's access token:
+Private pastes require the owner's access token. A configured administrator can also read private pastes by slug.
 
 ```bash
 curl -sS "$SUPABASE_URL/functions/v1/paste/AbCdEf2345" \
@@ -88,9 +88,11 @@ curl -sS "$SUPABASE_URL/functions/v1/paste?mine=1" \
   -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
+For administrators, `mine=1` returns all pastes and includes `admin_view: true` in the response.
+
 ## Update Paste
 
-Only the owner can update a paste.
+Only the owner or a configured administrator can update a paste.
 
 ```bash
 curl -sS -X PUT "$SUPABASE_URL/functions/v1/paste/AbCdEf2345" \
@@ -107,7 +109,7 @@ curl -sS -X PUT "$SUPABASE_URL/functions/v1/paste/AbCdEf2345" \
 
 ## Delete Paste
 
-Only the owner can delete a paste.
+Only the owner or a configured administrator can delete a paste.
 
 ```bash
 curl -sS -X DELETE "$SUPABASE_URL/functions/v1/paste/AbCdEf2345" \

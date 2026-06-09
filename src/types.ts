@@ -10,6 +10,9 @@ export type PasteSummary = {
   created_at: string;
   updated_at: string;
   is_owner: boolean;
+  is_admin: boolean;
+  can_edit: boolean;
+  can_delete: boolean;
   url: string;
 };
 
@@ -23,6 +26,9 @@ export type Paste = {
   created_at: string;
   updated_at: string;
   is_owner: boolean;
+  is_admin: boolean;
+  can_edit: boolean;
+  can_delete: boolean;
   url: string;
 };
 
@@ -30,6 +36,8 @@ export type PasteListResponse = {
   page: number;
   page_size: number;
   total: number;
+  is_admin?: boolean;
+  admin_view?: boolean;
   pastes: PasteSummary[];
 };
 

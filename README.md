@@ -118,6 +118,7 @@ The browser uses Supabase Edge Functions, but they are plain HTTP endpoints and 
 - Client-side HTML preview is sanitized as defense in depth.
 - Image uploads only accept PNG, JPEG, GIF, and WebP. SVG and `data:` image URLs are intentionally not supported.
 - Direct database writes are blocked by RLS; create/update/delete goes through Edge Functions so quotas and sanitization cannot be bypassed by the public client.
+- Optional administrator accounts are configured with Supabase secrets and can manage any paste.
 
 More details are in `docs/security.md`.
 

@@ -86,6 +86,23 @@ The deployed functions receive these Supabase-provided variables automatically:
 
 `IP_HASH_SECRET` is optional but recommended. If it is not set, the service role key is used as the fallback salt.
 
+Optional administrator secrets:
+
+- `ADMIN_USER_IDS`: comma-separated Supabase Auth user UUIDs.
+- `ADMIN_EMAILS`: comma-separated email addresses.
+- `ADMIN_GITHUB_USERNAMES`: comma-separated GitHub usernames from OAuth identity data.
+
+Administrators can read private pastes by slug, update/delete any paste, and use `mine=1` as an all-pastes admin list.
+
+Example:
+
+```bash
+supabase secrets set \
+  ADMIN_USER_IDS="00000000-0000-0000-0000-000000000000" \
+  ADMIN_EMAILS="owner@example.com" \
+  ADMIN_GITHUB_USERNAMES="octocat"
+```
+
 ## Auth Configuration
 
 In the Supabase dashboard:

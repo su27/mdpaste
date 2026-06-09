@@ -73,10 +73,21 @@ Direct client reads are intentionally narrow:
 
 Direct public insert/update/delete policies are not provided. All writes go through Edge Functions with the service role key so validation, sanitization, quotas, and ownership checks stay centralized.
 
+## Administrators
+
+Edge Functions can grant administrator privileges through Supabase secrets:
+
+- `ADMIN_USER_IDS`
+- `ADMIN_EMAILS`
+- `ADMIN_GITHUB_USERNAMES`
+
+Administrators bypass ownership checks for paste read-by-slug, update, and delete. The React UI shows edit/delete controls based on server-returned `can_edit` and `can_delete` fields; API clients cannot grant themselves those permissions.
+
 ## Operational Checklist
 
 - Keep `SUPABASE_SERVICE_ROLE_KEY` only in Edge Function secrets.
 - Never expose the service role key to the Vite client.
 - Set `IP_HASH_SECRET` before production launch.
+- Set administrator secrets only for trusted accounts.
 - Keep `verify_jwt = false` only for functions that intentionally support anonymous access.
 - Review sanitizer allowlists before allowing new HTML tags, attributes, or URL schemes.
